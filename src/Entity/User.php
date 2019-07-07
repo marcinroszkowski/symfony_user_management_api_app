@@ -101,8 +101,9 @@ class User implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getRoles(): array
+    public function getRoles()
     {
+        return array();
     }
 
     /**

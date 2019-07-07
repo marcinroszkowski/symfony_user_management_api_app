@@ -10,7 +10,9 @@
     {% endfor %}
     {% if not app.user %}
         <a href="{{ path('registration_index') }}"><strong>Register</strong></a>
+        <a href="{{ path('app_login') }}"><strong>Login</strong></a>
     {% else %}
         <h2>Welcome <strong>{{ app.user.username }}<strong></h2>
+        <a href="{{ path('app_logout') }}"><strong>Logout</strong></a>
     {% endif %}
 {% endblock %}
