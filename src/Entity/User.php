@@ -11,6 +11,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class User implements UserInterface
 {
+    const USERNAME_LENGTH = 65;
+    const EMAIL_LENGTH = 180;
+    const PASSWORD_LENGTH = 4096;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
