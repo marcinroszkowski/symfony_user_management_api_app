@@ -133,42 +133,49 @@ class ApiController
     }
 
     /**
+     * Returns a HTTP status 200 OK
+     *
+     * @param array $data
+     *
+     * @return Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function respondUpdated(string $message = 'User updated!'): JsonResponse
+    {
+        return $this->respond(array('message' => $message));
+    }
+
+    /**
      * Validates provided request data
      *
      * @param array $data
      *
      * @return array 
      */
-    protected function validateRequestData(array $data): array
+    protected function validateRequestData(array $data, $createAction): array
     {
         $validatedRequestData = array();
 
+        if($createAction == true){
+            if(! isset($data['username'])) {
+                $validatedRequestData['error'] = 'Provide username!';            
+                return $validatedRequestData;
+            } elseif (! isset($data['email'])) {
+                $validatedRequestData['error'] = 'Provide email!';
+                return $validatedRequestData;
+            } elseif(! isset($data['password'])){
+                $validatedRequestData['error'] = 'Provide password!';            
+                return $validatedRequestData;
+            }
+        }
+
         if(isset($data['username']) && is_string($data['username']) && strlen($data['username'] <= User::USERNAME_LENGTH ))
             $validatedRequestData['username'] = $data['username'];
-        else {
-            $validatedRequestData['error'] = 'Provide username!';            
-            return $validatedRequestData;
-        }
         
-        if(isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL) && strlen($data['email'] <= User::EMAIL_LENGTH )){
-            $user = $this->userRepository->findOneByEmail($data['email']);
-            if(!$user)
-                $validatedRequestData['email'] = $data['email'];
-            elseif($user) {
-                $validatedRequestData['error'] = 'User with given email already exists!';
-                return $validatedRequestData;
-            }    
-        } else {
-            $validatedRequestData['error'] = 'Provide email!';
-            return $validatedRequestData;
-        }
+        if(isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL) && strlen($data['email'] <= User::EMAIL_LENGTH ))
+            $validatedRequestData['email'] = $data['email'];
 
         if(isset($data['password']) && is_string($data['password']) && strlen($data['password'] <= User::PASSWORD_LENGTH))
             $validatedRequestData['password'] = $data['password'];
-        else {
-            $validatedRequestData['error'] = 'Provide password!';            
-            return $validatedRequestData;
-        }
 
         return $validatedRequestData;
     }
@@ -176,15 +183,41 @@ class ApiController
     /**
      * Returns json_decoded request data in array
      *
-     * @param array $data
+     * @param Symfony\Component\HttpFoundation\Request $request
      *
      * @return array
      */
-    protected function getRequestData(Request $request): array
+    protected function getRequestData(Request $request, $createAction = true): array
     {
         $requestData = json_decode($request->getContent(), 1);
-        $validatedRequestData = $this->validateRequestData($requestData);
+        $validatedRequestData = $this->validateRequestData($requestData, $createAction);
 
         return $validatedRequestData;
+    }
+
+    /**
+     * Validates by id whether User exists and returns corresponding bool value
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    protected function validateByIdIfUserExists(int $id): bool
+    {
+        $user = $this->userRepository->findOneById($id);
+        return $userExists = ($user) ? true : false;
+    }
+
+    /**
+     * Validates by email whether User exists and returns corresponding bool value
+     *
+     * @param array $requestDate
+     *
+     * @return bool
+     */
+    protected function validateByEmailIfUserExists(array $requestData): bool
+    {
+        $user = $this->userRepository->findOneByEmail($requestData['email']);
+        return $userExists = ($user) ? true : false;
     }
 }

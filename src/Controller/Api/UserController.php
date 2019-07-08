@@ -20,30 +20,21 @@ class UserController extends ApiController
     }
 
     /**
-    * @Route("/user/{id}")
+    * @Route("/user/{id}", methods="GET")
     */
-    public function getUserAction(Request $request, UserRepository $userRepository): JsonResponse
+    public function getUserAction(Request $request): JsonResponse
     {
-        if(is_numeric($request->get('id'))){
-            $userId = $request->get('id');
-
-            $user = $this->userRepository->findOneById($userId);
-
-            if(!$user)
-                return $this->respondNotFound('User not found!');
-
-            return $this->respond([
-                    'username' => $user->getUsername(),
-                    'email' => $user->getEmail()
-                ]
-            );
-        } elseif (!is_numeric($request->get('id'))) {
+        $userExists = $this->validateByIdIfUserExists((int) $request->get('id'));
+        if(!$userExists)
+            return $this->respondNotFound('User not found!');
             
-            return $this->respondValidationError('Invalid data type!');
-        } else {
+        $user = $this->userRepository->findOneById($request->get('id'));
 
-            return $this->respondValidationError('Bad request!');
-        }
+        return $this->respond([
+                'username' => $user->getUsername(),
+                'email' => $user->getEmail()
+            ]
+        );
     }
 
     /**
@@ -55,6 +46,10 @@ class UserController extends ApiController
         if(!empty($requestData['error']))
             return $this->respondFound($requestData['error']);
 
+        $userExists = $this->validateByEmailIfUserExists($requestData);
+        if($userExists)
+            return $this->respondFound('User already exists!');
+
         $user = new User;
         $user->setUsername($requestData['username']);
         $user->setEmail($requestData['email']);
@@ -65,5 +60,34 @@ class UserController extends ApiController
         $this->entityManager->flush();
 
         return $this->respondCreated();
+    }
+
+    /**
+     * @Route("/users/{id}", methods="PUT")
+     */
+    public function updateUserAction(string $id, Request $request): JsonResponse
+    {
+        $createAction = false;
+        $requestData = $this->getRequestData($request, $createAction);
+        $userExists = $this->validateByIdIfUserExists((int) $id);
+        if(!$userExists)
+            return $this->respondNotFound('User not found!');
+            
+        $user = $this->userRepository->findOneById($id);
+        if(isset($requestData['username']))
+            $user->setUsername($requestData['username']);
+
+        if(isset($requestData['email']))
+            $user->setEmail($requestData['email']);
+
+        if(isset($requestData['password'])){
+            $password = $this->passwordEncoder->encodePassword($user, $requestData['password']);
+            $user->setPassword($password);
+        }
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->respondUpdated();
     }
 }
