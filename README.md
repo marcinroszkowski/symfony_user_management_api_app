@@ -2,6 +2,8 @@
 
 Basic Symfony 4.3 application with functionality of registration and login extended with user management through REST API (input/output data as JSON).
 
+Usage of API methods require API Token which is presented at index page after successful registration and login of a user (registration form).
+
 # API response examples
 Response examples for successful requests, however errors are handled either. 
 
