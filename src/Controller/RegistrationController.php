@@ -27,6 +27,8 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $password = $passwordEncoder->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($password);
+            $apiToken = hash('SHA256', $user->getUsername());
+            $user->setApiToken($apiToken);
 
             $entityManager->persist($user);
             $entityManager->flush();

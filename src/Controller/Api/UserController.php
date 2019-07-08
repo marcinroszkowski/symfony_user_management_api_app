@@ -20,7 +20,7 @@ class UserController extends ApiController
     }
 
     /**
-    * @Route("/user/{id}", methods="GET")
+    * @Route("/api/users/{id}", methods="GET")
     */
     public function getUserAction(Request $request): JsonResponse
     {
@@ -38,7 +38,7 @@ class UserController extends ApiController
     }
 
     /**
-    * @Route("/users", methods="POST")
+    * @Route("/api/users", methods="POST")
     */
     public function createUserAction(Request $request): JsonResponse
     {
@@ -55,15 +55,17 @@ class UserController extends ApiController
         $user->setEmail($requestData['email']);
         $password = $this->passwordEncoder->encodePassword($user, $requestData['password']);
         $user->setPassword($password);
+        $apiToken = hash('SHA256', $user->getUsername());
+        $user->setApiToken($apiToken);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $this->respondCreated();
+        return $this->respondCreated($apiToken);
     }
 
     /**
-     * @Route("/users/{id}", methods="PUT")
+     * @Route("/api/users/{id}", methods="PUT")
      */
     public function updateUserAction(string $id, Request $request): JsonResponse
     {
@@ -92,7 +94,7 @@ class UserController extends ApiController
     }
 
     /**
-     * @Route("/users/{id}", methods="DELETE")
+     * @Route("/api/users/{id}", methods="DELETE")
      */
     public function deleteUserAction(string $id, Request $request): JsonResponse
     {

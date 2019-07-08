@@ -127,9 +127,9 @@ class ApiController
      *
      * @return Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function respondCreated(string $message = 'User created!'): JsonResponse
+    public function respondCreated(string $apiToken, string $message = 'User created!'): JsonResponse
     {
-        return $this->setStatusCode(201)->respond(array('message' => $message));
+        return $this->setStatusCode(201)->respond(array('message' => $message, 'apiToken' => $apiToken));
     }
 
     /**

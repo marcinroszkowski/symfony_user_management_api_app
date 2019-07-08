@@ -13,6 +13,7 @@
         <a href="{{ path('app_login') }}"><strong>Login</strong></a>
     {% else %}
         <h2>Welcome <strong>{{ app.user.username }}<strong></h2>
+        <h2>Your API Token is: <strong>{{ app.user.apiToken }}</strong></h2>
         <a href="{{ path('app_logout') }}"><strong>Logout</strong></a>
     {% endif %}
 {% endblock %}
