@@ -90,4 +90,21 @@ class UserController extends ApiController
 
         return $this->respondUpdated();
     }
+
+    /**
+     * @Route("/users/{id}", methods="DELETE")
+     */
+    public function deleteUserAction(string $id, Request $request): JsonResponse
+    {
+        $userExists = $this->validateByIdIfUserExists((int) $id);
+        if(!$userExists)
+            return $this->respondNotFound('User not found!');
+
+        $user = $this->userRepository->findOneById($id);
+
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+
+        return $this->respondDeleted();
+    }
 }

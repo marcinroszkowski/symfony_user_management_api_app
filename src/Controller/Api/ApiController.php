@@ -133,13 +133,25 @@ class ApiController
     }
 
     /**
-     * Returns a HTTP status 200 OK
+     * Returns a HTTP status 200 OK informing that User's been updated
      *
      * @param array $data
      *
      * @return Symfony\Component\HttpFoundation\JsonResponse
      */
     public function respondUpdated(string $message = 'User updated!'): JsonResponse
+    {
+        return $this->respond(array('message' => $message));
+    }
+
+    /**
+     * Returns a HTTP status 200 OK informing that User's been deleted
+     *
+     * @param array $data
+     *
+     * @return Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function respondDeleted(string $message = 'User deleted!'): JsonResponse
     {
         return $this->respond(array('message' => $message));
     }
